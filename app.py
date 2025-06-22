@@ -1,12 +1,9 @@
-# Ahmed Gali
-# Copyright (c) 2025 Ahmed Gali
-# Licensed under the MIT License
-
 from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from fastapi.responses import Response
 import tempfile
 import os
 from pdf_enhancer import enhance_pdf_from_path
+from image_enhancer import enhance_image_from_path
 import logging
 
 # Configure logging
@@ -37,7 +34,8 @@ async def root():
         "ascii_art": ASCII_ART,
         "description": "Transform your scanned documents into professional masterpieces!",
         "endpoints": {
-            "enhance": "POST /pimp-pdf - Upload and enhance your PDF",
+            "enhance_pdf": "POST /pimp-pdf - Upload and enhance your PDF",
+            "enhance_image": "POST /pimp-image - Upload and enhance your image",
             "health": "GET /health - Health check",
             "docs": "GET /docs - API documentation"
         }
@@ -119,6 +117,118 @@ async def pimp_pdf_endpoint(
         
         logger.error(f"Error processing PDF {file.filename}: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to process PDF: {str(e)}")
+
+@app.post("/pimp-image")
+async def pimp_image_endpoint(
+    file: UploadFile = File(..., description="Image file to pimp up! 🔥"),
+    area_threshold: float = Form(0.4, description="Document area threshold (0.1-1.0)", ge=0.1, le=1.0),
+    upscale_factor: int = Form(2, description="Image upscaling factor (1-5x)", ge=1, le=5),
+    quality: int = Form(95, description="Output quality for JPEG (1-100)", ge=1, le=100)
+):
+    """
+    🔥 PIMP YOUR IMAGE! 🔥
+    
+    Transform your scanned image into a professional masterpiece by:
+    - Straightening crooked pages/documents
+    - Enhancing contrast and clarity
+    - Cleaning up backgrounds
+    - Making it print-ready
+    
+    Supports common formats: PNG, JPG, JPEG, BMP, TIFF, etc.
+    
+    Args:
+        file: Image file to pimp up (PNG, JPG, JPEG, BMP, TIFF, etc.)
+        area_threshold: Minimum document size as fraction of image (0.4 = 40%)
+        upscale_factor: Image scaling factor (2 = double size)
+        quality: JPEG output quality (1-100, only affects JPEG output)
+    
+    Returns:
+        Pimped image as binary response in the same format as input! ✨
+    """
+    
+    # Get file extension to determine format
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="Filename is required")
+    
+    file_ext = file.filename.lower().split('.')[-1]
+    supported_formats = ['png', 'jpg', 'jpeg', 'bmp', 'tiff', 'tif']
+    
+    if file_ext not in supported_formats:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported file format. Supported formats: {', '.join(supported_formats)}"
+        )
+    
+    try:
+        # Create temporary files for input and output
+        input_suffix = f'.{file_ext}'
+        output_suffix = f'.{file_ext}'
+        
+        with tempfile.NamedTemporaryFile(delete=False, suffix=input_suffix) as temp_input:
+            # Save uploaded file
+            content = await file.read()
+            temp_input.write(content)
+            temp_input.flush()
+            
+            logger.info(f"🔥 PIMPING IMAGE: {file.filename} with threshold: {area_threshold}, upscale: {upscale_factor}x")
+            
+            # Create output temporary file
+            with tempfile.NamedTemporaryFile(delete=False, suffix=output_suffix) as temp_output:
+                # Process the image using our enhancement function
+                enhance_image_from_path(
+                    temp_input.name,
+                    temp_output.name,
+                    area_threshold,
+                    upscale_factor,
+                    quality
+                )
+                
+                # Read the pimped image
+                with open(temp_output.name, 'rb') as pimped_image:
+                    image_bytes = pimped_image.read()
+                
+                # Clean up temporary files
+                os.unlink(temp_input.name)
+                os.unlink(temp_output.name)
+                
+                logger.info(f"✨ Successfully pimped image: {file.filename}")
+                
+                # Generate output filename with "_pimped" before extension
+                base_name, ext = os.path.splitext(file.filename)
+                pimped_filename = f"{base_name}_pimped{ext}"
+                
+                # Determine media type based on file extension
+                media_type_map = {
+                    'png': 'image/png',
+                    'jpg': 'image/jpeg',
+                    'jpeg': 'image/jpeg',
+                    'bmp': 'image/bmp',
+                    'tiff': 'image/tiff',
+                    'tif': 'image/tiff'
+                }
+                media_type = media_type_map.get(file_ext, 'application/octet-stream')
+                
+                # Return the pimped image as binary response
+                return Response(
+                    content=image_bytes,
+                    media_type=media_type,
+                    headers={
+                        "Content-Disposition": f"attachment; filename={pimped_filename}"
+                    }
+                )
+                
+    except Exception as e:
+        # Clean up temporary files in case of error
+        try:
+            if 'temp_input' in locals():
+                os.unlink(temp_input.name)
+            if 'temp_output' in locals():
+                os.unlink(temp_output.name)
+        except:
+            pass
+        
+        logger.error(f"Error processing image {file.filename}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to process image: {str(e)}")
 
 @app.get("/health")
 async def health_check():

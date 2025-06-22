@@ -1,0 +1,7 @@
+PyMuPDF==1.23.26
+opencv-python-headless
+numpy
+Pillow
+fastapi
+uvicorn[standard]
+python-multipart

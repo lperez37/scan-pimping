@@ -49,14 +49,67 @@ docker-compose down
 **The API will be available at http://localhost:8000**
 
 🔥 API Endpoints:
+- `POST /pimp` - **🌟 UNIVERSAL ENDPOINT** - Upload ANY file (PDF/Image) and get it pimped automatically! 🔥
 - `POST /pimp-pdf` - Upload a PDF file and get the pimped version back! 🚀
 - `POST /pimp-image` - Upload an image file and get the pimped version back! 🔥
 - `GET /health` - Health check endpoint
 - `GET /` - Root endpoint with ASCII art and service info
 
-#### Testing the API
+#### Universal Endpoint (Recommended) 🌟
+
+The `/pimp` endpoint automatically detects your file type and processes it accordingly!
 
 **Using curl:**
+
+```sh
+# Works with PDFs
+curl -X POST "http://localhost:8000/pimp" \
+     -H "Content-Type: multipart/form-data" \
+     -F "file=@document.pdf" \
+     -F "dpi=200" \
+     --output document_pimped.pdf
+
+# Works with Images
+curl -X POST "http://localhost:8000/pimp" \
+     -H "Content-Type: multipart/form-data" \
+     -F "file=@image.jpg" \
+     -F "area_threshold=0.4" \
+     -F "upscale_factor=2" \
+     -F "quality=95" \
+     --output image_pimped.jpg
+```
+
+**Using Python requests:**
+
+```python
+import requests
+
+# Works with any supported file type!
+def pimp_file(file_path, **params):
+    with open(file_path, 'rb') as f:
+        files = {'file': f}
+        response = requests.post('http://localhost:8000/pimp', files=files, data=params)
+        
+        if response.status_code == 200:
+            # Generate output filename
+            base_name, ext = file_path.rsplit('.', 1)
+            output_path = f"{base_name}_pimped.{ext}"
+            
+            with open(output_path, 'wb') as output:
+                output.write(response.content)
+            print(f"🔥 File pimped successfully: {output_path}")
+            return output_path
+
+# Pimp a PDF
+pimp_file('document.pdf', dpi=200)
+
+# Pimp an image
+pimp_file('scan.jpg', area_threshold=0.4, upscale_factor=2, quality=95)
+```
+
+#### Individual Endpoints
+
+**PDF Enhancement - Using curl:**
 
 ```sh
 curl -X POST "http://localhost:8000/pimp-pdf" \
@@ -177,3 +230,29 @@ Both API and standalone script automatically generate output filenames by append
 - `document.jpg` → `document_pimped.jpg`
 - `scan_001.png` → `scan_001_pimped.png`
 - `photo.jpeg` → `photo_pimped.jpeg`
+
+---
+
+## Output Filename Format
+
+All endpoints (universal `/pimp`, `/pimp-pdf`, `/pimp-image`) and the standalone script automatically generate output filenames by appending `_pimped` before the file extension:
+
+**PDFs:**
+- `document.pdf` → `document_pimped.pdf`
+- `scan_001.pdf` → `scan_001_pimped.pdf`
+- `report.pdf` → `report_pimped.pdf`
+
+**Images:**
+- `document.jpg` → `document_pimped.jpg`
+- `scan_001.png` → `scan_001_pimped.png`
+- `photo.jpeg` → `photo_pimped.jpeg`
+
+---
+
+## Supported File Formats
+
+**📄 PDFs:** `.pdf`
+
+**🖼️ Images:** `.png`, `.jpg`, `.jpeg`, `.bmp`, `.tiff`, `.tif`
+
+The universal `/pimp` endpoint automatically detects the file type and applies the appropriate enhancement pipeline!

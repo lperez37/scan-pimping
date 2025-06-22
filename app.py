@@ -34,6 +34,7 @@ async def root():
         "ascii_art": ASCII_ART,
         "description": "Transform your scanned documents into professional masterpieces!",
         "endpoints": {
+            "enhance": "POST /pimp - Upload any file (PDF/Image) and get enhanced version! 🔥",
             "enhance_pdf": "POST /pimp-pdf - Upload and enhance your PDF",
             "enhance_image": "POST /pimp-image - Upload and enhance your image",
             "health": "GET /health - Health check",
@@ -229,6 +230,64 @@ async def pimp_image_endpoint(
         
         logger.error(f"Error processing image {file.filename}: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to process image: {str(e)}")
+
+@app.post("/pimp")
+async def pimp_file_endpoint(
+    file: UploadFile = File(..., description="Any file to pimp up! PDF or Image 🔥"),
+    dpi: int = Form(200, description="PDF scan quality (DPI) - only for PDFs", ge=72, le=600),
+    area_threshold: float = Form(0.4, description="Image document area threshold - only for images", ge=0.1, le=1.0),
+    upscale_factor: int = Form(2, description="Image upscaling factor - only for images", ge=1, le=5),
+    quality: int = Form(95, description="Output quality for JPEG images", ge=1, le=100)
+):
+    """
+    🔥 UNIVERSAL PIMP ENDPOINT! 🔥
+    
+    Upload ANY supported file and get it pimped automatically!
+    This endpoint intelligently detects whether you uploaded a PDF or image
+    and routes it to the appropriate processing pipeline.
+    
+    Supported formats:
+    📄 PDFs: .pdf
+    🖼️ Images: .png, .jpg, .jpeg, .bmp, .tiff, .tif
+    
+    Args:
+        file: Any supported file (PDF or image)
+        dpi: PDF scan quality (72-600 DPI) - only used for PDFs
+        area_threshold: Image document area threshold (0.1-1.0) - only used for images
+        upscale_factor: Image scaling factor (1-5x) - only used for images
+        quality: JPEG output quality (1-100) - only used for JPEG images
+    
+    Returns:
+        Enhanced file in the same format as input! ✨
+    """
+    
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="Filename is required")
+    
+    # Get file extension to determine processing type
+    file_ext = file.filename.lower().split('.')[-1]
+    
+    # Define supported formats
+    pdf_formats = ['pdf']
+    image_formats = ['png', 'jpg', 'jpeg', 'bmp', 'tiff', 'tif']
+    all_supported = pdf_formats + image_formats
+    
+    if file_ext not in all_supported:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported file format '{file_ext}'. Supported formats: PDF ({', '.join(pdf_formats)}), Images ({', '.join(image_formats)})"
+        )
+    
+    logger.info(f"🔥 Universal endpoint: Detected {file_ext} file: {file.filename}")
+    
+    # Route to appropriate endpoint based on file type
+    if file_ext in pdf_formats:
+        logger.info(f"📄 Routing to PDF pipeline")
+        return await pimp_pdf_endpoint(file, dpi)
+    
+    elif file_ext in image_formats:
+        logger.info(f"🖼️ Routing to image pipeline")
+        return await pimp_image_endpoint(file, area_threshold, upscale_factor, quality)
 
 @app.get("/health")
 async def health_check():

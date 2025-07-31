@@ -9,8 +9,7 @@
  ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═══╝    ╚═╝     ╚═╝╚═╝     ╚═╝╚═╝     ╚═╝╚═╝  ╚═══╝ ╚═════╝
 ```
 
-# 🔥 SCAN-PIMPING 🔥
-
+# SCAN-PIMPING
 
 </div>
 
@@ -18,25 +17,25 @@
 
 ## Overview
 
-🔥 **SCAN-PIMPING** is the ultimate tool to transform your scanned documents and images into professional masterpieces! This innovative application uses advanced computer vision techniques to automatically enhance both PDF documents and image files through intelligent image processing.
+SCAN-PIMPING is the ultimate tool to transform your scanned documents and images into professional masterpieces. This innovative application uses advanced computer vision techniques to automatically enhance both PDF documents and image files through intelligent image processing.
 
-**Why SCAN-PIMPING? Because your scanned documents and images deserve to look AMAZING! 🚀**
+**Why SCAN-PIMPING? Because your scanned documents and images deserve to look AMAZING.**
 
 This project takes the pain out of dealing with crooked, low-contrast scanned documents and images. The core features include:
 
--   🔥 **Lightning-Fast Processing:** In-memory processing for blazing-fast document transformation
--   🎯 **Smart Page Detection:** Automatically detects and straightens crooked pages
--   ✨ **Professional Enhancement:** Boosts contrast, cleans backgrounds, and makes documents print-ready
--   🌐 **REST API Interface:** Powerful FastAPI-based HTTP endpoints for easy integration
--   📄 **Seamless Integration:** Built with FastAPI for easy integration into your workflows
--   🐳 **Docker Ready:** Containerized deployment for consistent results anywhere
--   💡 **High-Quality Output:** Crystal-clear, professional PDFs that impress every time
+- **Lightning-Fast Processing:** In-memory processing for blazing-fast document transformation
+- **Smart Page Detection:** Automatically detects and straightens crooked pages
+- **Professional Enhancement:** Boosts contrast, cleans backgrounds, and makes documents print-ready
+- **REST API Interface:** Powerful FastAPI-based HTTP endpoints for easy integration
+- **Seamless Integration:** Built with FastAPI for easy integration into your workflows
+- **Docker Ready:** Containerized deployment for consistent results anywhere
+- **High-Quality Output:** Crystal-clear, professional PDFs that impress every time
 
 ---
 
 ## Getting Started
 
-### Usage (Docker Compose):**
+### Usage (Docker Compose):
 
 ```sh
 # Start the service
@@ -48,14 +47,14 @@ docker-compose down
 
 **The API will be available at http://localhost:8000**
 
-🔥 API Endpoints:
-- `POST /pimp` - **🌟 UNIVERSAL ENDPOINT** - Upload ANY file (PDF/Image) and get it pimped automatically! 🔥
-- `POST /pimp-pdf` - Upload a PDF file and get the pimped version back! 🚀
-- `POST /pimp-image` - Upload an image file and get the pimped version back! 🔥
+API Endpoints:
+- `POST /pimp` - **Universal Endpoint** - Upload ANY file (PDF/Image) and get it pimped automatically
+- `POST /pimp-pdf` - Upload a PDF file and get the pimped version back
+- `POST /pimp-image` - Upload an image file and get the pimped version back
 - `GET /health` - Health check endpoint
 - `GET /` - Root endpoint with ASCII art and service info
 
-#### Universal Endpoint (Recommended) 🌟
+#### Universal Endpoint (Recommended)
 
 The `/pimp` endpoint automatically detects your file type and processes it accordingly!
 
@@ -97,7 +96,7 @@ def pimp_file(file_path, **params):
             
             with open(output_path, 'wb') as output:
                 output.write(response.content)
-            print(f"🔥 File pimped successfully: {output_path}")
+            print(f"File pimped successfully: {output_path}")
             return output_path
 
 # Pimp a PDF
@@ -133,7 +132,7 @@ with open('your_document.pdf', 'rb') as f:
     if response.status_code == 200:
         with open('document_pimped.pdf', 'wb') as output:
             output.write(response.content)
-        print("🔥 PDF pimped successfully!")
+        print("PDF pimped successfully!")
 ```
 
 **Output Filename Format:**
@@ -174,7 +173,7 @@ with open('your_image.jpg', 'rb') as f:
     if response.status_code == 200:
         with open('image_pimped.jpg', 'wb') as output:
             output.write(response.content)
-        print("🔥 Image pimped successfully!")
+        print("Image pimped successfully!")
 ```
 
 **Supported Image Formats:**
@@ -251,8 +250,8 @@ All endpoints (universal `/pimp`, `/pimp-pdf`, `/pimp-image`) and the standalone
 
 ## Supported File Formats
 
-**📄 PDFs:** `.pdf`
+**PDFs:** `.pdf`
 
-**🖼️ Images:** `.png`, `.jpg`, `.jpeg`, `.bmp`, `.tiff`, `.tif`
+**Images:** `.png`, `.jpg`, `.jpeg`, `.bmp`, `.tiff`, `.tif`
 
 The universal `/pimp` endpoint automatically detects the file type and applies the appropriate enhancement pipeline!
